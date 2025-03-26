@@ -5,51 +5,40 @@ def input_error(func):
         except ValueError:
             return "Give me name and phone please."
         except IndexError:
-            return "Enter the argument for the command"
+            return "Enter the argument for the command."
         except KeyError:
             return "Contact not found."
     return inner
 
+@input_error
 def parse_input(user_input):
+    if not user_input.strip():
+        raise ValueError  # Порожній рядок викличе ValueError, який обробить декоратор
     cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
-    return cmd, *args
+    return cmd.strip().lower(), *args
 
 @input_error
 def add_contact(args, contacts):
-    if len(args) != 2:
-        raise ValueError
-    name, phone = args
+    name, phone = args  # Декоратор обробить помилку, якщо аргументів недостатньо
     contacts[name] = phone
     return "Contact added."
 
 @input_error
 def change_contact(args, contacts):
-    if len(args) != 2:
-        raise ValueError
     name, phone = args
-    if name in contacts:
-        contacts[name] = phone
-        return "Contact updated."
-    else:
-        raise KeyError
+    contacts[name] = phone  # Якщо імені немає в контактах, декоратор обробить KeyError
+    return "Contact updated."
 
 @input_error
 def show_phone(args, contacts):
-    if len(args) != 1:
-        raise ValueError
     name = args[0]
-    if name in contacts:
-        return f"Phone number of {name}: {contacts[name]}"
-    else:
-        raise KeyError
+    return f"Phone number of {name}: {contacts[name]}"
 
 @input_error
 def show_all(contacts):
     if not contacts:
         return "No contacts found."
-    all_contacts = "\n".join([f"{name}: {phone}" for name, phone in contacts.items()])
-    return all_contacts
+    return "\n".join([f"{name}: {phone}" for name, phone in contacts.items()])
 
 def main():
     contacts = {}
